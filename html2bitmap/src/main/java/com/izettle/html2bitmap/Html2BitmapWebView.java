@@ -137,6 +137,7 @@ class Html2BitmapWebView implements ProgressChangedListener {
         final WebSettings settings = webView.getSettings();
         settings.setBuiltInZoomControls(false);
         settings.setSupportZoom(false);
+        settings.setOffscreenPreRaster(true);
 
         if (textZoom != null) {
             settings.setTextZoom(textZoom);
@@ -209,11 +210,16 @@ class Html2BitmapWebView implements ProgressChangedListener {
 
     private Bitmap screenshot(WebView webView) {
 
-        Bitmap bitmap = Bitmap.createBitmap(webView.getMeasuredWidth(), webView.getMeasuredHeight(), Bitmap.Config.RGB_565);
+        Bitmap bitmap = Bitmap.createBitmap(webView.getMeasuredWidth(), webView.getMeasuredHeight(), Bitmap.Config.ARGB_8888);
 
         Canvas canvas = new Canvas(bitmap);
 
-        canvas.setDrawFilter(new PaintFlagsDrawFilter(Paint.ANTI_ALIAS_FLAG, 0));
+        canvas.setDrawFilter(
+                new PaintFlagsDrawFilter(
+                    0,
+                    Paint.ANTI_ALIAS_FLAG | Paint.FILTER_BITMAP_FLAG | Paint.DITHER_FLAG | Paint.SUBPIXEL_TEXT_FLAG
+            )
+        );
 
         webView.draw(canvas);
         return bitmap;
